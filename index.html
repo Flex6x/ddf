@@ -270,7 +270,6 @@ function nav(d) {
   const nxt=episodes[idx+d]; if(!nxt) return;
   cur=nxt.num; save(); updatePlayer();
   document.querySelectorAll(".epr").forEach(r=>r.classList.toggle("act",+r.dataset.n===cur));
-  document.querySelector(".epr.act")?.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 
 function toggleCur() {
