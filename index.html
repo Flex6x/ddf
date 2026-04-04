@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>??? Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
@@ -14,7 +15,10 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .app{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:0 16px 100px}
 .hdr{padding:44px 8px 20px;text-align:center}
 .hdr-die{font-family:"Playfair Display",serif;font-size:13px;letter-spacing:.35em;color:var(--mu);text-transform:uppercase}
-.hdr-qqq{font-family:"Playfair Display",serif;font-size:clamp(48px,14vw,64px);font-weight:900;color:var(--ac);line-height:.9;letter-spacing:-.03em;text-shadow:0 0 60px rgba(232,196,74,.25)}
+.hdr-qqq{font-family:"Playfair Display",serif;font-size:clamp(48px,14vw,64px);font-weight:900;line-height:.9;letter-spacing:-.03em;display:flex;justify-content:center;gap:4px}
+.q-w{color:#fff;text-shadow:0 0 40px rgba(255,255,255,.2)}
+.q-r{color:#fe0000;text-shadow:0 0 40px rgba(254,0,0,.2)}
+.q-b{color:#0000fe;text-shadow:0 0 40px rgba(0,0,254,.2)}
 .hdr-sub{font-size:12px;color:var(--mu2);letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
 .stats{display:flex;gap:1px;margin:0 0 24px;background:var(--bd);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
 .stat{flex:1;text-align:center;padding:14px 8px;background:var(--sf)}
@@ -117,13 +121,23 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .btnd:hover{background:rgba(224,85,85,.12)}
 .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--sf2);border:1px solid var(--bd);border-radius:24px;padding:9px 18px;font-size:13px;color:var(--tx);opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;z-index:300}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.auth-btn{position:absolute;top:20px;right:16px;background:var(--sf2);border:1px solid var(--bd);color:var(--mu);padding:6px 14px;border-radius:20px;font-size:11px;cursor:pointer;z-index:10;display:flex;align-items:center;gap:6px;transition:all .2s}
+.auth-btn:hover{color:var(--tx);border-color:var(--ac)}
+.auth-btn svg{width:14px;height:14px}
+.m-input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:12px;outline:none;font-family:inherit;font-size:14px}
+.m-input:focus{border-color:var(--ac)}
 @media(min-width:600px){.app{max-width:500px}}
 @media(min-width:900px){body{padding:40px 20px}.app{max-width:540px;padding:0 0 100px}}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="hdr"><div class="hdr-die">Die</div><div class="hdr-qqq">???</div><div class="hdr-sub">Folgen-Tracker</div></div>
+<button class="auth-btn" id="authBtn" onclick="openAuth()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  <span id="authText">Login</span>
+</button>
+<div class="hdr">
+<div class="hdr-die">Die</div><div class="hdr-qqq"><span class="q-w">?</span><span class="q-r">?</span><span class="q-b">?</span></div><div class="hdr-sub">Folgen-Tracker</div></div>
 <div class="stats">
   <div class="stat"><div class="stat-n" id="sT">–</div><div class="stat-l">Gesamt</div></div>
   <div class="stat"><div class="stat-n" id="sW">–</div><div class="stat-l">Gehört</div></div>
@@ -198,6 +212,25 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
     <div class="mdanger"><button class="btnd" onclick="resetAll()">Alle Häkchen entfernen</button></div>
   </div>
 </div>
+<div class="ov" id="ovAuth" onclick="handleOv(event)">
+  <div class="modal">
+    <div class="mpill"></div>
+    <div class="mtitle" id="authTitle">Konto</div>
+    <div class="mdesc" id="authDesc">Melde dich an, um deine Daten in der Cloud zu sichern.</div>
+    <div id="authForms">
+      <input type="email" id="authEmail" class="m-input" placeholder="E-Mail">
+      <input type="password" id="authPass" class="m-input" placeholder="Passwort">
+      <div class="mbtns">
+        <button class="btn btnp" onclick="doAuth('login')">Login</button>
+        <button class="btn btns" onclick="doAuth('reg')">Registrieren</button>
+      </div>
+    </div>
+    <div id="userProfile" style="display:none">
+        <div class="mdesc" id="profileEmail" style="margin-bottom:20px;font-weight:500;color:var(--tx)"></div>
+        <button class="btn btns" onclick="doLogout()">Abmelden</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -226,6 +259,14 @@ async function initEpisodes() {
 
 let episodes = [];
 
+// ── SUPABASE ────────────────────────────────────────────────────────────
+const S_URL = "https://ohxnksqafpuaabwppmmh.supabase.co";
+const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oeG5rc3FhZnB1YWFid3BwbW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTQyMTQsImV4cCI6MjA5MDg3MDIxNH0.TlLxQBqypqTZTqS8SEbB5ogbMNE-kYg0Xr3MHTUWvYI";
+let sb = null;
+if (S_URL !== "https://ohxnksqafpuaabwppmmh.supabase.co") {
+  sb = supabase.createClient(S_URL, S_KEY);
+}
+
 // ── STATE ───────────────────────────────────────────────────────────────
 let checked = new Set();
 let bookmarks = new Set();
@@ -233,8 +274,9 @@ let ratings = {};
 let cur = 1;
 let filt = "all";
 let obs = null;
+let user = null;
 
-function loadState() {
+async function loadState() {
   try {
     const c = localStorage.getItem("ddf4_c");
     if (c) checked = new Set(JSON.parse(c));
@@ -244,13 +286,118 @@ function loadState() {
     if (r) ratings = JSON.parse(r);
     const e = localStorage.getItem("ddf4_ep");
     if (e) cur = Math.max(1, Math.min(parseInt(e), episodes.length||999));
+    
+    if (sb) {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+            user = session.user;
+            await syncFromCloud();
+            updateAuthUI();
+        }
+    }
   } catch(e) {}
 }
-function save() {
+
+async function save() {
   localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
   localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
   localStorage.setItem("ddf4_r", JSON.stringify(ratings));
   localStorage.setItem("ddf4_ep", cur);
+  if (user && sb) await syncToCloud();
+}
+
+// ── CLOUD SYNC ──────────────────────────────────────────────────────────
+async function syncToCloud() {
+    if (!user || !sb) return;
+    try {
+        await sb.from("user_data").upsert({
+            id: user.id,
+            checked: [...checked],
+            bookmarks: [...bookmarks],
+            ratings: ratings,
+            updated_at: new Date()
+        });
+    } catch(e) { console.error("Sync Error", e); }
+}
+
+async function syncFromCloud() {
+    if (!user || !sb) return;
+    try {
+        const { data, error } = await sb.from("user_data").select("*").eq("id", user.id).single();
+        if (data) {
+            // Merge logic: Combine local and cloud
+            if (data.checked) data.checked.forEach(n => checked.add(n));
+            if (data.bookmarks) data.bookmarks.forEach(n => bookmarks.add(n));
+            if (data.ratings) ratings = { ...ratings, ...data.ratings };
+            
+            // Save merged back to local
+            localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
+            localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
+            localStorage.setItem("ddf4_r", JSON.stringify(ratings));
+        }
+    } catch(e) {}
+}
+
+// ── AUTH ────────────────────────────────────────────────────────────────
+function openAuth() { document.getElementById("ovAuth").classList.add("open"); }
+function closeAuth() { document.getElementById("ovAuth").classList.remove("open"); }
+
+async function doAuth(type) {
+    if (!sb) { toast("Supabase nicht konfiguriert."); return; }
+    const email = document.getElementById("authEmail").value;
+    const pass = document.getElementById("authPass").value;
+    if (!email || !pass) { toast("Bitte Daten eingeben."); return; }
+
+    try {
+        let res;
+        if (type === "reg") {
+            res = await sb.auth.signUp({ email, password: pass });
+            if (res.error) throw res.error;
+            toast("Registrierung erfolgreich! Check deine Mails.");
+        } else {
+            res = await sb.auth.signInWithPassword({ email, password: pass });
+            if (res.error) throw res.error;
+            user = res.data.user;
+            await syncFromCloud(); // Pull existing data
+            await syncToCloud();   // Push local data (merges effectively)
+            toast("Erfolgreich angemeldet!");
+            updateAuthUI();
+            closeAuth();
+            updateStats(); renderList(); updatePlayer();
+        }
+    } catch(e) {
+        toast("Fehler: " + e.message);
+    }
+}
+
+async function doLogout() {
+    if (sb) await sb.auth.signOut();
+    user = null;
+    updateAuthUI();
+    closeAuth();
+    toast("Abgemeldet.");
+}
+
+function updateAuthUI() {
+    const btn = document.getElementById("authBtn");
+    const text = document.getElementById("authText");
+    const forms = document.getElementById("authForms");
+    const profile = document.getElementById("userProfile");
+    const pEmail = document.getElementById("profileEmail");
+    const title = document.getElementById("authTitle");
+
+    if (user) {
+        text.textContent = "Profil";
+        forms.style.display = "none";
+        profile.style.display = "block";
+        pEmail.textContent = user.email;
+        title.textContent = "Dein Profil";
+    } else {
+        text.textContent = "Login";
+        forms.style.display = "block";
+        profile.style.display = "none";
+        title.textContent = "Konto";
+    }
 }
 
 // ── CANVAS ──────────────────────────────────────────────────────────────
