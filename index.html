@@ -271,12 +271,26 @@ function loadCover(ep) {
   const sz=Math.min((cvs.offsetWidth||460)*(window.devicePixelRatio||1),900);
   draw(cvs,ep.num,sz);
   img.classList.remove("on"); img.src="";
-  if(ep.cover){
+  if(ep.num){
     spin.classList.add("on");
-    const p=new Image(); p.crossOrigin="anonymous";
-    p.onload=()=>{spin.classList.remove("on");if(p.naturalWidth>5){img.src=ep.cover;requestAnimationFrame(()=>img.classList.add("on"))}};
-    p.onerror=()=>spin.classList.remove("on");
-    p.src=ep.cover;
+    const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
+    const p=new Image();
+    p.onload=()=>{
+      spin.classList.remove("on");
+      if(p.naturalWidth>5){
+        img.src=p.src;
+        requestAnimationFrame(()=>img.classList.add("on"));
+      }
+    };
+    p.onerror=()=>{
+      if(p.src.includes('cover/cover_')){
+        p.crossOrigin="anonymous";
+        p.src=ep.cover;
+      } else {
+        spin.classList.remove("on");
+      }
+    };
+    p.src=local;
   }
 }
 
@@ -322,13 +336,25 @@ function setupObs() {
       if(!e.isIntersecting) return;
       const row=e.target, n=+row.dataset.n;
       const ep=episodes.find(x=>x.num===n);
-      if(!ep?.cover) return;
+      if(!ep) return;
       const img=row.querySelector(".epth-i");
       if(img.dataset.l) return;
       img.dataset.l="1";
-      const p=new Image(); p.crossOrigin="anonymous";
-      p.onload=()=>{if(p.naturalWidth>5){img.src=ep.cover;requestAnimationFrame(()=>img.classList.add("on"))}};
-      p.src=ep.cover;
+      const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
+      const p=new Image();
+      p.onload=()=>{
+        if(p.naturalWidth>5){
+          img.src=p.src;
+          requestAnimationFrame(()=>img.classList.add("on"));
+        }
+      };
+      p.onerror=()=>{
+        if(p.src.includes('cover/cover_')){
+          p.crossOrigin="anonymous";
+          p.src=ep.cover;
+        }
+      };
+      p.src=local;
       obs.unobserve(row);
     });
   },{rootMargin:"150px"});
