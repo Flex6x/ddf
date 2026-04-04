@@ -176,7 +176,7 @@ const EP_DATA=[[1,"und der Super-Papagei","http://a1.mzstatic.com/us/r30/Music41
 const episodes = EP_DATA.map(([num, sub, cover]) => ({
   num,
   title: sub,  // show just the subtitle for space (e.g. "und der Super-Papagei")
-  cover: cover || ""
+  cover: `https://dreimetadaten.de/data/Serie/${String(num).padStart(3, '0')}/cover.png`
 }));
 
 // ── STATE ───────────────────────────────────────────────────────────────
@@ -413,7 +413,7 @@ async function tryLiveUpdate() {
       const obj=episodes.find(e=>e.num===ep.nummer);
       if(!obj) return;
       obj.title=ep.titel||obj.title;
-      obj.cover=ep.links?.cover_itunes||ep.links?.cover_kosmos||obj.cover;
+      obj.cover=`https://dreimetadaten.de/data/Serie/${String(ep.nummer).padStart(3, '0')}/cover.png`;
     });
     updatePlayer();renderList();
   } catch(e){}
