@@ -119,7 +119,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 <div class="player">
   <div class="cvr">
     <canvas class="cvr-canvas" id="pCvs"></canvas>
-    <img class="cvr-img" id="pImg" alt="" crossorigin="anonymous">
+    <img class="cvr-img" id="pImg" alt="">
     <div class="cvr-ok" id="pOk">
       <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="34" stroke="rgba(52,213,116,.5)" stroke-width="1.5"/><path d="M20 36L31 47L52 26" stroke="#34d574" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -270,7 +270,7 @@ function loadCover(ep) {
   const cvs=document.getElementById("pCvs"),img=document.getElementById("pImg"),spin=document.getElementById("pSpin");
   const sz=Math.min((cvs.offsetWidth||460)*(window.devicePixelRatio||1),900);
   draw(cvs,ep.num,sz);
-  img.classList.remove("on"); img.src="";
+  img.classList.remove("on"); img.src=""; img.removeAttribute("crossorigin");
   if(ep.num){
     spin.classList.add("on");
     const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
@@ -286,6 +286,7 @@ function loadCover(ep) {
       if(p.src.includes('cover/cover_')){
         p.crossOrigin="anonymous";
         p.src=ep.cover;
+        img.crossOrigin="anonymous";
       } else {
         spin.classList.remove("on");
       }
@@ -352,6 +353,7 @@ function setupObs() {
         if(p.src.includes('cover/cover_')){
           p.crossOrigin="anonymous";
           p.src=ep.cover;
+          img.crossOrigin="anonymous";
         }
       };
       p.src=local;
@@ -376,7 +378,7 @@ function renderList() {
     const row=document.createElement("div");
     row.className=`epr${done?" done":""}${act?" act":""}`;
     row.dataset.n=ep.num;
-    row.innerHTML=`<div class="epth"><canvas class="epth-c"></canvas><img class="epth-i" alt="" crossorigin="anonymous"></div><div class="epi"><div class="epn">FOLGE ${String(ep.num).padStart(3,"0")}</div><div class="ept">${esc(ep.title)}</div></div><div class="epck"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    row.innerHTML=`<div class="epth"><canvas class="epth-c"></canvas><img class="epth-i" alt=""></div><div class="epi"><div class="epn">FOLGE ${String(ep.num).padStart(3,"0")}</div><div class="ept">${esc(ep.title)}</div></div><div class="epck"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`;
     draw(row.querySelector(".epth-c"),ep.num,84);
     row.addEventListener("click",e=>{
       if(e.target.closest(".epck")) toggleEp(ep.num);
