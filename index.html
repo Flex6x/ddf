@@ -27,8 +27,8 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .player{background:var(--sf);border:1px solid var(--bd);border-radius:22px;overflow:hidden;margin-bottom:28px}
 .cvr{position:relative;width:100%;aspect-ratio:1;background:var(--sf2);overflow:hidden}
 .cvr-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s;visibility:hidden}
-.cvr-img.on{opacity:1;visibility:visible}
+.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s cubic-bezier(.4,0,.2,1);backface-visibility:hidden;transform:translateZ(0)}
+.cvr-img.on{opacity:1}
 .cvr-ok{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(52,213,116,.14);opacity:0;transition:opacity .3s;pointer-events:none}
 .cvr-ok.on{opacity:1}
 .cvr-ok svg{width:72px;height:72px;filter:drop-shadow(0 0 18px rgba(52,213,116,.7))}
@@ -441,26 +441,7 @@ function updateAuthUI() {
 function draw(c, num, sz) {
   c.width = sz; c.height = sz;
   const x = c.getContext("2d");
-  const bg = x.createLinearGradient(0,0,sz,sz);
-  bg.addColorStop(0,"#0c0c1e"); bg.addColorStop(1,"#18101e");
-  x.fillStyle = bg; x.fillRect(0,0,sz,sz);
-  const gl = x.createRadialGradient(sz/2,sz*.38,0,sz/2,sz*.38,sz*.55);
-  gl.addColorStop(0,"rgba(232,196,74,.13)"); gl.addColorStop(1,"transparent");
-  x.fillStyle = gl; x.fillRect(0,0,sz,sz);
-  const m = sz*.055;
-  x.strokeStyle = "rgba(232,196,74,.25)"; x.lineWidth = sz>200?1.5:1;
-  x.strokeRect(m,m,sz-m*2,sz-m*2);
-  x.font = `900 ${sz*.36}px "Playfair Display",Georgia,serif`;
-  x.textAlign = "center"; x.textBaseline = "middle";
-  if(sz>100){x.shadowColor="rgba(232,196,74,.45)";x.shadowBlur=sz*.07}
-  const g = x.createLinearGradient(0,sz*.2,0,sz*.65);
-  g.addColorStop(0,"#f0d464"); g.addColorStop(1,"#c49030");
-  x.fillStyle = g; x.fillText("???",sz/2,sz*.41); x.shadowBlur=0;
-  if(sz>80){
-    x.font=`400 ${sz*.075}px "DM Sans",sans-serif`;
-    x.fillStyle="rgba(240,224,192,.55)";
-    x.fillText("FOLGE "+String(num).padStart(3,"0"),sz/2,sz*.66);
-  }
+  x.clearRect(0,0,sz,sz);
 }
 
 // ── STATS ───────────────────────────────────────────────────────────────
@@ -539,32 +520,45 @@ function updateRateStars() {
   });
 }
 
+let cvId = 0;
 function loadCover(ep) {
   const cvs=document.getElementById("pCvs"),img=document.getElementById("pImg"),spin=document.getElementById("pSpin");
   const sz=Math.min((cvs.offsetWidth||460)*(window.devicePixelRatio||1),900);
-  
-  // Show spinner, but keep the current cover for now
+  const myId = ++cvId;
+
   spin.classList.add("on");
   
   const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
   const p = new Image();
   
-  const showResult = (src, success) => {
-    // Fade out current image
+  const showResult = async (src, success) => {
+    if(cvId !== myId) return;
+
+    if (success && src) {
+      try {
+        const temp = new Image();
+        temp.src = src;
+        if (src.startsWith('http')) temp.crossOrigin = "anonymous";
+        await temp.decode();
+      } catch(e) {}
+    }
+
+    if(cvId !== myId) return;
+
     img.classList.remove("on");
     
-    // Tiny delay to swap when almost invisible
+    // We can swap instantly now without a text-placeholder blinking
     setTimeout(() => {
+      if(cvId !== myId) return;
       draw(cvs, ep.num, sz);
       if(success) {
         img.src = src;
         img.classList.add("on");
       } else {
-        // Fallback: transparent pixel to avoid any icons
         img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       }
       spin.classList.remove("on");
-    }, 80);
+    }, 50);
   };
 
   p.onload = () => {
