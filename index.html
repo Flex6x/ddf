@@ -27,16 +27,12 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .player{background:var(--sf);border:1px solid var(--bd);border-radius:22px;overflow:hidden;margin-bottom:28px}
 .cvr{position:relative;width:100%;aspect-ratio:1;background:var(--sf2);overflow:hidden}
 .cvr-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s cubic-bezier(.4,0,.2,1);backface-visibility:hidden;transform:translateZ(0)}
+.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out;backface-visibility:hidden;transform:translateZ(0)}
 .cvr-img.on{opacity:1}
 .cvr-ok{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(52,213,116,.14);opacity:0;transition:opacity .3s;pointer-events:none}
 .cvr-ok.on{opacity:1}
 .cvr-ok svg{width:72px;height:72px;filter:drop-shadow(0 0 18px rgba(52,213,116,.7))}
 .badge{position:absolute;top:14px;left:14px;background:rgba(8,8,16,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:5px 11px;font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.08em}
-.spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s}
-.spinner.on{opacity:1}
-.spin-ring{width:36px;height:36px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 .pbody{padding:18px 22px 22px}
 .pnum{font-size:11px;color:var(--mu);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
 .ptitle{font-family:"Playfair Display",serif;font-size:clamp(18px,5vw,21px);font-weight:700;line-height:1.25;min-height:1.5em;flex:1}
@@ -158,7 +154,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
       <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="34" stroke="rgba(52,213,116,.5)" stroke-width="1.5"/><path d="M20 36L31 47L52 26" stroke="#34d574" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div class="badge" id="pBadge">–</div>
-    <div class="spinner" id="pSpin"><div class="spin-ring"></div></div>
   </div>
   <div class="pbody">
     <div class="pnum" id="pNum">–</div>
@@ -249,7 +244,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
   <div class="modal">
     <div class="mpill"></div>
     <div class="mtitle" id="descTitle">Folgenbeschreibung</div>
-    <div class="desc-text" id="descContent" style="margin-bottom:20px">Lade...</div>
+    <div class="desc-text" id="descContent" style="margin-bottom:20px;display:flex;flex-direction:column">Lade...</div>
     <div class="mbtns"><button class="btn btnp" onclick="closeDesc()">Schließen</button></div>
   </div>
 </div>
@@ -271,7 +266,8 @@ async function initEpisodes() {
         cover: `https://dreimetadaten.de/data/Serie/${String(ep.nummer).padStart(3, '0')}/cover.png`,
         desc: ep.beschreibung || ep.gesamtbeschreibung || "",
         spotify: ep.links ? ep.links.spotify : "",
-        spotifyId: ep.ids ? ep.ids.spotify : ""
+        spotifyId: ep.ids ? ep.ids.spotify : "",
+        duration: ep.gesamtdauer || 0
       }));
     }
   } catch(e){}
@@ -281,7 +277,8 @@ async function initEpisodes() {
     cover: `https://dreimetadaten.de/data/Serie/${String(num).padStart(3, '0')}/cover.png`,
     desc: "",
     spotify: "",
-    spotifyId: ""
+    spotifyId: "",
+    duration: 0
   }));
 }
 
@@ -374,7 +371,14 @@ function openDesc() {
     const ep = episodes.find(e => e.num === cur);
     if (!ep) return;
     document.getElementById("descTitle").textContent = ep.title;
-    document.getElementById("descContent").textContent = ep.desc || "Keine Beschreibung verfügbar.";
+    
+    let info = "";
+    if (ep.duration) {
+      const mins = Math.floor(ep.duration / 60000);
+      info = `<div style="font-size:11px;color:var(--ac);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Dauer: ca. ${mins} Minuten</div>`;
+    }
+    
+    document.getElementById("descContent").innerHTML = info + (ep.desc || "Keine Beschreibung verfügbar.");
     document.getElementById("ovDesc").classList.add("open");
 }
 function closeDesc() { document.getElementById("ovDesc").classList.remove("open"); }
@@ -522,32 +526,17 @@ function updateRateStars() {
 
 let cvId = 0;
 function loadCover(ep) {
-  const cvs=document.getElementById("pCvs"),img=document.getElementById("pImg"),spin=document.getElementById("pSpin");
+  const cvs=document.getElementById("pCvs"),img=document.getElementById("pImg");
   const sz=Math.min((cvs.offsetWidth||460)*(window.devicePixelRatio||1),900);
   const myId = ++cvId;
 
-  spin.classList.add("on");
-  
   const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
   const p = new Image();
   
-  const showResult = async (src, success) => {
+  const showResult = (src, success) => {
     if(cvId !== myId) return;
-
-    if (success && src) {
-      try {
-        const temp = new Image();
-        temp.src = src;
-        if (src.startsWith('http')) temp.crossOrigin = "anonymous";
-        await temp.decode();
-      } catch(e) {}
-    }
-
-    if(cvId !== myId) return;
-
     img.classList.remove("on");
     
-    // We can swap instantly now without a text-placeholder blinking
     setTimeout(() => {
       if(cvId !== myId) return;
       draw(cvs, ep.num, sz);
@@ -557,8 +546,7 @@ function loadCover(ep) {
       } else {
         img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       }
-      spin.classList.remove("on");
-    }, 50);
+    }, 100);
   };
 
   p.onload = () => {
