@@ -39,7 +39,10 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes spin{to{transform:rotate(360deg)}}
 .pbody{padding:18px 22px 22px}
 .pnum{font-size:11px;color:var(--mu);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
-.ptitle{font-family:"Playfair Display",serif;font-size:clamp(18px,5vw,21px);font-weight:700;line-height:1.25;min-height:1.5em}
+.ptitle{font-family:"Playfair Display",serif;font-size:clamp(18px,5vw,21px);font-weight:700;line-height:1.25;min-height:1.5em;flex:1}
+.desc-text{font-size:14px;color:var(--tx);line-height:1.65;max-height:60vh;overflow-y:auto;padding-right:8px;white-space:pre-wrap}
+.desc-text::-webkit-scrollbar{width:4px}
+.desc-text::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .prog{margin:14px 0 18px;display:flex;align-items:center;gap:10px}
 .prog-track{flex:1;height:3px;background:var(--bd);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--ac2),var(--ac));border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
@@ -155,7 +158,10 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
   </div>
   <div class="pbody">
     <div class="pnum" id="pNum">–</div>
-    <div class="ptitle" id="pTitle">–</div>
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:2px">
+      <div class="ptitle" id="pTitle">–</div>
+      <button class="ctrl-s" id="mInfo" onclick="openDesc()" style="margin-top:1px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+    </div>
     <div class="prog"><div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div><div class="prog-pct" id="progPct">0%</div></div>
     <div class="ctrl-row">
       <button class="ctrl-s" id="mBook" onclick="toggleBook()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></button>
@@ -231,6 +237,14 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
     </div>
   </div>
 </div>
+<div class="ov" id="ovDesc" onclick="handleOv(event)">
+  <div class="modal">
+    <div class="mpill"></div>
+    <div class="mtitle" id="descTitle">Folgenbeschreibung</div>
+    <div class="desc-text" id="descContent" style="margin-bottom:20px">Lade...</div>
+    <div class="mbtns"><button class="btn btnp" onclick="closeDesc()">Schließen</button></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -246,14 +260,16 @@ async function initEpisodes() {
       return arr.map(ep=>({
         num: ep.nummer,
         title: ep.titel,
-        cover: `https://dreimetadaten.de/data/Serie/${String(ep.nummer).padStart(3, '0')}/cover.png`
+        cover: `https://dreimetadaten.de/data/Serie/${String(ep.nummer).padStart(3, '0')}/cover.png`,
+        desc: ep.beschreibung || ep.gesamtbeschreibung || ""
       }));
     }
   } catch(e){}
   return EP_DATA.map(([num, sub, cover]) => ({
     num,
     title: sub,
-    cover: `https://dreimetadaten.de/data/Serie/${String(num).padStart(3, '0')}/cover.png`
+    cover: `https://dreimetadaten.de/data/Serie/${String(num).padStart(3, '0')}/cover.png`,
+    desc: ""
   }));
 }
 
@@ -341,6 +357,15 @@ async function syncFromCloud() {
 // ── AUTH ────────────────────────────────────────────────────────────────
 function openAuth() { document.getElementById("ovAuth").classList.add("open"); }
 function closeAuth() { document.getElementById("ovAuth").classList.remove("open"); }
+
+function openDesc() {
+    const ep = episodes.find(e => e.num === cur);
+    if (!ep) return;
+    document.getElementById("descTitle").textContent = ep.title;
+    document.getElementById("descContent").textContent = ep.desc || "Keine Beschreibung verfügbar.";
+    document.getElementById("ovDesc").classList.add("open");
+}
+function closeDesc() { document.getElementById("ovDesc").classList.remove("open"); }
 
 async function doAuth(type) {
     if (!sb) { toast("Supabase nicht konfiguriert."); return; }
@@ -660,7 +685,11 @@ function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g
 // ── MODAL ───────────────────────────────────────────────────────────────
 function openM(){document.getElementById("ov").classList.add("open")}
 function closeM(){document.getElementById("ov").classList.remove("open")}
-function handleOv(e){if(e.target.id==="ov") closeM()}
+function handleOv(e){
+  if(e.target.id==="ov") closeM();
+  if(e.target.id==="ovAuth") closeAuth();
+  if(e.target.id==="ovDesc") closeDesc();
+}
 function doImport(){
   const nums=parseNums(document.getElementById("mTa").value);
   if(!nums.length){toast("Keine gültigen Nummern gefunden.");return}
