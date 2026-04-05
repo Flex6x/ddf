@@ -27,8 +27,8 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .player{background:var(--sf);border:1px solid var(--bd);border-radius:22px;overflow:hidden;margin-bottom:28px}
 .cvr{position:relative;width:100%;aspect-ratio:1;background:var(--sf2);overflow:hidden}
 .cvr-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s}
-.cvr-img.on{opacity:1}
+.cvr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s;visibility:hidden}
+.cvr-img.on{opacity:1;visibility:visible}
 .cvr-ok{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(52,213,116,.14);opacity:0;transition:opacity .3s;pointer-events:none}
 .cvr-ok.on{opacity:1}
 .cvr-ok svg{width:72px;height:72px;filter:drop-shadow(0 0 18px rgba(52,213,116,.7))}
@@ -542,30 +542,44 @@ function updateRateStars() {
 function loadCover(ep) {
   const cvs=document.getElementById("pCvs"),img=document.getElementById("pImg"),spin=document.getElementById("pSpin");
   const sz=Math.min((cvs.offsetWidth||460)*(window.devicePixelRatio||1),900);
-  draw(cvs,ep.num,sz);
-  img.classList.remove("on"); img.src=""; img.removeAttribute("crossorigin");
-  if(ep.num){
-    spin.classList.add("on");
-    const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
-    const p=new Image();
-    p.onload=()=>{
-      spin.classList.remove("on");
-      if(p.naturalWidth>5){
-        img.src=p.src;
-        requestAnimationFrame(()=>img.classList.add("on"));
-      }
-    };
-    p.onerror=()=>{
-      if(p.src.includes('cover/cover_')){
-        p.crossOrigin="anonymous";
-        p.src=ep.cover;
-        img.crossOrigin="anonymous";
+  
+  // Show spinner, but keep the current cover for now
+  spin.classList.add("on");
+  
+  const local = `cover/cover_${String(ep.num).padStart(3, '0')}.png`;
+  const p = new Image();
+  
+  const showResult = (src, success) => {
+    // Fade out current image
+    img.classList.remove("on");
+    
+    // Tiny delay to swap when almost invisible
+    setTimeout(() => {
+      draw(cvs, ep.num, sz);
+      if(success) {
+        img.src = src;
+        img.classList.add("on");
       } else {
-        spin.classList.remove("on");
+        // Fallback: transparent pixel to avoid any icons
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       }
-    };
-    p.src=local;
-  }
+      spin.classList.remove("on");
+    }, 80);
+  };
+
+  p.onload = () => {
+    if(p.naturalWidth > 5) showResult(p.src, true);
+    else p.onerror();
+  };
+  p.onerror = () => {
+    if(p.src.includes('cover/cover_')) {
+      p.crossOrigin = "anonymous";
+      p.src = ep.cover;
+    } else {
+      showResult("", false);
+    }
+  };
+  p.src = local;
 }
 
 function nav(d) {
