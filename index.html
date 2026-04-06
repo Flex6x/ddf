@@ -65,7 +65,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .rate-star.on{color:var(--ac)}
 .lhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .ltitle{font-family:"Playfair Display",serif;font-size:18px;font-weight:700}
-.filters{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,black 90%,transparent)}
+.filters{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;padding-right:50px;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,black 90%,transparent)}
 .filters::-webkit-scrollbar{display:none}
 .fb{padding:4px 11px;border-radius:20px;font-size:11px;font-family:"DM Sans",sans-serif;border:1px solid var(--bd);background:transparent;color:var(--mu);cursor:pointer;transition:all .15s;letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
 .fb.on{background:var(--ac);border-color:var(--ac);color:#000;font-weight:500}
@@ -100,9 +100,11 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .ep-empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px}
 .fab{position:fixed;bottom:24px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--ac);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0a0810;box-shadow:0 4px 18px rgba(232,196,74,.38);transition:all .2s;z-index:90}
 .fab:hover{transform:scale(1.1);box-shadow:0 6px 26px rgba(232,196,74,.5)}
-.up-btn{position:fixed;bottom:24px;right:80px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90;opacity:0;pointer-events:none}
+.up-btn{position:fixed;bottom:24px;right:140px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90;opacity:0;pointer-events:none}
 .up-btn.on{opacity:1;pointer-events:all}
 .up-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
+.exp-btn{position:fixed;bottom:24px;right:80px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90}
+.exp-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
 .ov{position:fixed;inset:0;background:rgba(8,8,16,.88);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
 .ov.open{opacity:1;pointer-events:all}
 .modal{width:100%;max-width:460px;background:var(--sf);border:1px solid var(--bd);border-top:1px solid rgba(232,196,74,.15);border-radius:22px 22px 0 0;padding:28px 22px 44px;transform:translateY(100%);transition:transform .38s cubic-bezier(.32,.72,0,1)}
@@ -209,6 +211,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 <footer class="ftr">Daten von dreimetadaten.de | Cover © Sony Music/Kosmos</footer>
 </div>
 
+<button class="exp-btn" onclick="exportCSV()" title="Daten exportieren (.csv)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
 <button class="up-btn" id="upBtn" onclick="toTop()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
 <button class="fab" onclick="openM()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 
@@ -238,7 +241,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
     </div>
     <div id="userProfile" style="display:none">
         <div class="mdesc" id="profileEmail" style="margin-bottom:20px;font-weight:500;color:var(--tx)"></div>
-        <button class="btn btns" onclick="doLogout()">Abmelden</button>
+        <button class="btn btnd" style="width:100%;text-align:center" onclick="doLogout()">Abmelden</button>
     </div>
   </div>
 </div>
@@ -425,28 +428,48 @@ async function doAuth(type) {
     if (!email || !pass) { toast("Bitte Daten eingeben."); return; }
 
     try {
-        let res;
         if (type === "reg") {
-            res = await sb.auth.signUp({ email, password: pass });
+            const res = await sb.auth.signUp({ email, password: pass });
             if (res.error) throw res.error;
-            toast("Registrierung erfolgreich! Check deine Mails.");
+            
+            // Bei Registrierung: Aktuellen Stand in die Cloud schieben
+            if (res.data.user) {
+              await sb.from("user_data").upsert({
+                  id: res.data.user.id,
+                  checked: [...checked],
+                  bookmarks: [...bookmarks],
+                  ratings: ratings,
+                  updated_at: new Date()
+              });
+              // LocalStorage leeren, damit Gast-Stand weg ist
+              localStorage.removeItem("ddf4_c");
+              localStorage.removeItem("ddf4_b");
+              localStorage.removeItem("ddf4_r");
+            }
+            toast("Registrierung erfolgreich!");
         } else {
-            res = await sb.auth.signInWithPassword({ email, password: pass });
+            const res = await sb.auth.signInWithPassword({ email, password: pass });
             if (res.error) throw res.error;
             user = res.data.user;
 
-            // Einmaliger Merge beim Login: Wir holen die Cloud-Daten und fügen sie zu den aktuellen lokalen hinzu
+            // Beim Login: NUR Cloud-Daten laden, Lokales ignorieren
             const { data } = await sb.from("user_data").select("*").eq("id", user.id).single();
             if (data) {
-                if (data.checked) data.checked.forEach(n => checked.add(n));
-                if (data.bookmarks) data.bookmarks.forEach(n => bookmarks.add(n));
-                if (data.ratings) ratings = { ...data.ratings, ...ratings };
+                checked = new Set(data.checked || []);
+                bookmarks = new Set(data.bookmarks || []);
+                ratings = data.ratings || {};
+            } else {
+                checked = new Set();
+                bookmarks = new Set();
+                ratings = {};
             }
             
-            // Den gemergten Zustand überall speichern
-            await save(); 
+            // LocalStorage mit Cloud-Stand synchronisieren
+            localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
+            localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
+            localStorage.setItem("ddf4_r", JSON.stringify(ratings));
 
-            toast("Erfolgreich angemeldet!");
+            toast("Willkommen zurück!");
             updateAuthUI();
             closeAuth();
             updateStats(); renderList(); updatePlayer();
@@ -459,9 +482,19 @@ async function doAuth(type) {
 async function doLogout() {
     if (sb) await sb.auth.signOut();
     user = null;
+    
+    // Alles zurücksetzen (Gast startet bei Null)
+    checked = new Set();
+    bookmarks = new Set();
+    ratings = {};
+    localStorage.removeItem("ddf4_c");
+    localStorage.removeItem("ddf4_b");
+    localStorage.removeItem("ddf4_r");
+    
     updateAuthUI();
     closeAuth();
-    toast("Abgemeldet.");
+    toast("Abgemeldet. Lokaler Stand zurückgesetzt.");
+    updateStats(); renderList(); updatePlayer();
 }
 
 function updateAuthUI() {
@@ -755,6 +788,24 @@ window.addEventListener("click", () => {
 });
 
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+function exportCSV() {
+  let csv = "\uFEFFNummer;Titel;Status;Bewertung;Lesezeichen\n";
+  episodes.forEach(ep => {
+    const status = checked.has(ep.num) ? "Gehört" : "Offen";
+    const rate = ratings[ep.num] || "-";
+    const book = bookmarks.has(ep.num) ? "Ja" : "Nein";
+    csv += `${ep.num};"${ep.title.replace(/"/g, '""')}";${status};${rate};${book}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `DDF_Tracker_Export_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 // ── MODAL ───────────────────────────────────────────────────────────────
 function openM(){document.getElementById("ov").classList.add("open")}
