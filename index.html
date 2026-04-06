@@ -290,7 +290,7 @@ let episodes = [];
 const S_URL = "https://ohxnksqafpuaabwppmmh.supabase.co";
 const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oeG5rc3FhZnB1YWFid3BwbW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTQyMTQsImV4cCI6MjA5MDg3MDIxNH0.TlLxQBqypqTZTqS8SEbB5ogbMNE-kYg0Xr3MHTUWvYI";
 let sb = null;
-if (S_URL !== "https://ohxnksqafpuaabwppmmh.supabase.co") {
+if (S_URL && S_URL.includes("supabase.co")) {
   sb = supabase.createClient(S_URL, S_KEY);
 }
 
