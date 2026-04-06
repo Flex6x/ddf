@@ -374,19 +374,18 @@ async function syncFromCloud() {
     try {
         const { data, error } = await sb.from("user_data").select("*").eq("id", user.id).single();
         if (data) {
-            // Merge logic: Combine local and cloud
-            if (data.checked) data.checked.forEach(n => checked.add(n));
-            if (data.bookmarks) data.bookmarks.forEach(n => bookmarks.add(n));
-            if (data.ratings) ratings = { ...ratings, ...data.ratings };
-            
-            // Save merged back to local
+            // Überschreiben statt nur Hinzufügen, damit Löschungen übernommen werden
+            checked = new Set(data.checked || []);
+            bookmarks = new Set(data.bookmarks || []);
+            ratings = data.ratings || {};
+
+            // Sofort lokal speichern
             localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
             localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
             localStorage.setItem("ddf4_r", JSON.stringify(ratings));
         }
-    } catch(e) {}
+    } catch(e) { console.error("Pull Error", e); }
 }
-
 // ── AUTH ────────────────────────────────────────────────────────────────
 function openAuth() { document.getElementById("ovAuth").classList.add("open"); }
 function closeAuth() { document.getElementById("ovAuth").classList.remove("open"); }
@@ -435,8 +434,18 @@ async function doAuth(type) {
             res = await sb.auth.signInWithPassword({ email, password: pass });
             if (res.error) throw res.error;
             user = res.data.user;
-            await syncFromCloud(); // Pull existing data
-            await syncToCloud();   // Push local data (merges effectively)
+
+            // Einmaliger Merge beim Login: Wir holen die Cloud-Daten und fügen sie zu den aktuellen lokalen hinzu
+            const { data } = await sb.from("user_data").select("*").eq("id", user.id).single();
+            if (data) {
+                if (data.checked) data.checked.forEach(n => checked.add(n));
+                if (data.bookmarks) data.bookmarks.forEach(n => bookmarks.add(n));
+                if (data.ratings) ratings = { ...data.ratings, ...ratings };
+            }
+            
+            // Den gemergten Zustand überall speichern
+            await save(); 
+
             toast("Erfolgreich angemeldet!");
             updateAuthUI();
             closeAuth();
