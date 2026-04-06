@@ -15,11 +15,12 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .app{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:0 16px 100px}
 .hdr{padding:44px 8px 20px;text-align:center}
 .hdr-die{font-family:"Playfair Display",serif;font-size:13px;letter-spacing:.35em;color:var(--mu);text-transform:uppercase}
-.hdr-qqq{font-family:"Playfair Display",serif;font-size:clamp(48px,14vw,64px);font-weight:900;line-height:.9;letter-spacing:-.03em;display:flex;justify-content:center;gap:4px}
-.q-w{color:#fff;text-shadow:0 0 40px rgba(255,255,255,.2)}
-.q-r{color:#fe0000;text-shadow:0 0 40px rgba(254,0,0,.2)}
-.q-b{color:#0000fe;text-shadow:0 0 40px rgba(0,0,254,.2)}
+.hdr-qqq{font-family:"Franklin Gothic Heavy", "Arial Black", sans-serif;font-size:clamp(48px,14vw,64px);font-weight:900;line-height:.9;letter-spacing:-.03em;display:flex;justify-content:center;gap:4px}
+.q-w{color:#ffffff;text-shadow:0 0 40px rgba(255,255,255,.2)}
+.q-r{color:#ed1b24;text-shadow:0 0 40px rgba(237,27,36,.2)}
+.q-b{color:#00adef;text-shadow:0 0 40px rgba(0,173,239,.2)}
 .hdr-sub{font-size:12px;color:var(--mu2);letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
+.ftr{text-align:center;font-size:10px;color:var(--mu2);margin-top:40px;padding-bottom:20px;letter-spacing:0.02em}
 .stats{display:flex;gap:1px;margin:0 0 24px;background:var(--bd);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
 .stat{flex:1;text-align:center;padding:14px 8px;background:var(--sf)}
 .stat-n{font-family:"Playfair Display",serif;font-size:26px;font-weight:700;color:var(--ac);line-height:1}
@@ -205,6 +206,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
   <input class="si" id="srch" type="text" placeholder="Folge suchen…" oninput="renderList()">
 </div>
 <div class="eplist" id="epList"></div>
+<footer class="ftr">Daten von dreimetadaten.de | Cover © Sony Music/Kosmos</footer>
 </div>
 
 <button class="up-btn" id="upBtn" onclick="toTop()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
