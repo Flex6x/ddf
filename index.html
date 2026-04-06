@@ -256,20 +256,39 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 const EP_DATA=[[1,"und der Super-Papagei","http://a1.mzstatic.com/us/r30/Music41/v4/c9/3f/e4/c93fe4aa-c385-ed18-2cb3-e4eeff284f5a/source"],[2,"und der Phantomsee","http://a1.mzstatic.com/us/r30/Music62/v4/87/1c/7f/871c7f1c-fdf1-bed9-bf1b-eb7ab73ec448/source"],[3,"und der Karpatenhund","http://a1.mzstatic.com/us/r30/Music71/v4/a7/d8/54/a7d85469-a416-93a3-93ba-d8e82be2f8ae/source"],[4,"und die schwarze Katze","http://a1.mzstatic.com/us/r30/Music71/v4/21/ee/57/21ee57b0-0949-8674-8b3d-c2c512c5fbc8/source"],[5,"und der Fluch des Rubins","http://a1.mzstatic.com/us/r30/Music62/v4/f5/4e/46/f54e4607-2ea1-d765-632e-8a1723d4ba61/source"],[6,"und der sprechende Totenkopf","http://a1.mzstatic.com/us/r30/Music71/v4/a7/e7/cb/a7e7cbc3-0ce0-34db-a310-d7b82546f2b0/source"],[7,"und der unheimliche Drache","http://a1.mzstatic.com/us/r30/Music62/v4/c0/7a/ba/c07aba56-7363-71d6-72ba-38d2a968e379/source"],[8,"und der grüne Geist","http://a1.mzstatic.com/us/r30/Music22/v4/63/98/91/639891fc-8d20-3c32-78a9-5f12e7919932/source"],[9,"und die rätselhaften Bilder","http://a1.mzstatic.com/us/r30/Music41/v4/63/ed/85/63ed8571-c32d-cc88-3bf2-6b1921c9023b/source"],[10,"und die flüsternde Mumie","http://a1.mzstatic.com/us/r30/Music62/v4/db/b7/97/dbb79799-f83a-4f0d-551f-5be2854150d9/source"],[11,"und das Gespensterschloss","http://a1.mzstatic.com/us/r30/Music71/v4/cd/c3/65/cdc36537-ec11-9175-81ba-869e45908266/source"],[12,"und der seltsame Wecker","http://a1.mzstatic.com/us/r30/Music41/v4/79/3c/bb/793cbb57-e901-d11c-6d90-671e09e02f3b/source"],[13,"und der lachende Schatten","http://a1.mzstatic.com/us/r30/Music71/v4/35/d3/83/35d383d4-7cf8-4fc9-4a06-2197ae82f46b/source"],[14,"und das Bergmonster","http://a1.mzstatic.com/us/r30/Music41/v4/05/0b/e1/050be1b1-f45d-df0a-eadd-3209014ed635/source"],[15,"und der rasende Löwe","http://a1.mzstatic.com/us/r30/Music62/v4/9f/c3/e3/9fc3e3cc-6b71-2f31-ccda-8d0563427859/source"],[16,"und der Zauberspiegel","http://a1.mzstatic.com/us/r30/Music22/v4/1d/6e/77/1d6e77a2-74de-9e23-8636-646960f2524a/source"],[17,"und die gefährliche Erbschaft","http://a1.mzstatic.com/us/r30/Music71/v4/03/49/a0/0349a037-336c-9743-f222-38d01116c499/source"],[18,"und die Geisterinsel","http://a1.mzstatic.com/us/r30/Music71/v4/b9/8d/e4/b98de464-963d-f2e7-0133-c24097f642be/source"],[19,"und der Teufelsberg","http://a1.mzstatic.com/us/r30/Music71/v4/10/d4/05/10d40510-1c05-1a3b-2870-8b9a9101d2ec/source"],[20,"und die flammende Spur","http://a1.mzstatic.com/us/r30/Music71/v4/4a/c3/d8/4ac3d84a-71be-580a-9d62-5509789396f4/source"]];
 
 // ── BUILD EPISODE OBJECTS ───────────────────────────────────────────────
+function formatDate(d) {
+  if(!d) return "";
+  const parts = d.split("-");
+  return parts.reverse().join(".");
+}
+
 async function initEpisodes() {
   try {
     const r=await fetch("https://dreimetadaten.de/data/Serie.json");
     if(r.ok) {
       const raw=await r.json();
       const arr=raw.serie||[];
-      return arr.map(ep=>({
+      const today = new Date().toISOString().split('T')[0];
+      
+      const released = arr.filter(ep => ep.veröffentlichungsdatum && ep.veröffentlichungsdatum <= today);
+      const upcoming = arr.filter(ep => ep.veröffentlichungsdatum && ep.veröffentlichungsdatum > today);
+      
+      const filtered = [...released];
+      if (upcoming.length > 0) {
+        filtered.push(upcoming[0]);
+      }
+
+      return filtered.map(ep=>({
         num: ep.nummer,
         title: ep.titel,
         cover: `https://dreimetadaten.de/data/Serie/${String(ep.nummer).padStart(3, '0')}/cover.png`,
         desc: ep.beschreibung || ep.gesamtbeschreibung || "",
+        author: ep.autor || "Unbekannt",
+        date: ep.veröffentlichungsdatum,
         spotify: ep.links ? ep.links.spotify : "",
         spotifyId: ep.ids ? ep.ids.spotify : "",
-        duration: ep.gesamtdauer || 0
+        duration: ep.gesamtdauer || 0,
+        isFuture: ep.veröffentlichungsdatum > today
       }));
     }
   } catch(e){}
@@ -278,9 +297,12 @@ async function initEpisodes() {
     title: sub,
     cover: `https://dreimetadaten.de/data/Serie/${String(num).padStart(3, '0')}/cover.png`,
     desc: "",
+    author: "",
+    date: "",
     spotify: "",
     spotifyId: "",
-    duration: 0
+    duration: 0,
+    isFuture: false
   }));
 }
 
@@ -375,10 +397,22 @@ function openDesc() {
     document.getElementById("descTitle").textContent = ep.title;
     
     let info = "";
+    if (ep.isFuture) {
+      info += `<div style="background:var(--ac);color:#000;padding:12px;border-radius:12px;font-weight:900;margin-bottom:20px;text-align:center;font-size:14px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(232,196,74,0.2)">ERSCHEINT AM ${formatDate(ep.date)}</div>`;
+    }
+    
+    info += `<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-bottom:16px;background:var(--sf2);padding:12px;border-radius:12px;border:1px solid var(--bd)">`;
+    if (ep.author) {
+      info += `<div style="font-size:11px;color:var(--mu2);text-transform:uppercase;letter-spacing:0.05em">Autor</div><div style="font-size:13px;color:var(--tx);font-weight:500">${ep.author}</div>`;
+    }
+    if (ep.date) {
+      info += `<div style="font-size:11px;color:var(--mu2);text-transform:uppercase;letter-spacing:0.05em">${ep.isFuture?"Datum":"Erschienen"}</div><div style="font-size:13px;color:var(--tx);font-weight:500">${formatDate(ep.date)}</div>`;
+    }
     if (ep.duration) {
       const mins = Math.floor(ep.duration / 60000);
-      info = `<div style="font-size:11px;color:var(--ac);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Dauer: ca. ${mins} Minuten</div>`;
+      info += `<div style="font-size:11px;color:var(--mu2);text-transform:uppercase;letter-spacing:0.05em">Dauer</div><div style="font-size:13px;color:var(--tx);font-weight:500">ca. ${mins} Minuten</div>`;
     }
+    info += `</div>`;
     
     document.getElementById("descContent").innerHTML = info + (ep.desc || "Keine Beschreibung verfügbar.");
     document.getElementById("ovDesc").classList.add("open");
