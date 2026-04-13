@@ -2,15 +2,19 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>??? Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#080810;--sf:#10101c;--sf2:#181828;--bd:#252538;--ac:#e8c44a;--ac2:#b89530;--tx:#f0eee8;--mu:#6a6a8a;--mu2:#4a4a6a;--ck:#34d574;--r:18px;--rs:12px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:"DM Sans",sans-serif;min-height:100vh;overflow-x:hidden}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+body{background:var(--bg);color:var(--tx);font-family:"DM Sans",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
+.desc-text{user-select:text}
+.si{user-select:text}
+.mta{user-select:text}
+.m-input{user-select:text}
 body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(232,196,74,.07) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(80,60,180,.07) 0%,transparent 55%);pointer-events:none;z-index:0}
 .app{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:0 16px 100px}
 .hdr{padding:44px 8px 20px;text-align:center}
@@ -255,8 +259,10 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 </div>
 <div class="toast" id="toast"></div>
 
-<script>
-const EP_DATA=[[1,"und der Super-Papagei","http://a1.mzstatic.com/us/r30/Music41/v4/c9/3f/e4/c93fe4aa-c385-ed18-2cb3-e4eeff284f5a/source"],[2,"und der Phantomsee","http://a1.mzstatic.com/us/r30/Music62/v4/87/1c/7f/871c7f1c-fdf1-bed9-bf1b-eb7ab73ec448/source"],[3,"und der Karpatenhund","http://a1.mzstatic.com/us/r30/Music71/v4/a7/d8/54/a7d85469-a416-93a3-93ba-d8e82be2f8ae/source"],[4,"und die schwarze Katze","http://a1.mzstatic.com/us/r30/Music71/v4/21/ee/57/21ee57b0-0949-8674-8b3d-c2c512c5fbc8/source"],[5,"und der Fluch des Rubins","http://a1.mzstatic.com/us/r30/Music62/v4/f5/4e/46/f54e4607-2ea1-d765-632e-8a1723d4ba61/source"],[6,"und der sprechende Totenkopf","http://a1.mzstatic.com/us/r30/Music71/v4/a7/e7/cb/a7e7cbc3-0ce0-34db-a310-d7b82546f2b0/source"],[7,"und der unheimliche Drache","http://a1.mzstatic.com/us/r30/Music62/v4/c0/7a/ba/c07aba56-7363-71d6-72ba-38d2a968e379/source"],[8,"und der grüne Geist","http://a1.mzstatic.com/us/r30/Music22/v4/63/98/91/639891fc-8d20-3c32-78a9-5f12e7919932/source"],[9,"und die rätselhaften Bilder","http://a1.mzstatic.com/us/r30/Music41/v4/63/ed/85/63ed8571-c32d-cc88-3bf2-6b1921c9023b/source"],[10,"und die flüsternde Mumie","http://a1.mzstatic.com/us/r30/Music62/v4/db/b7/97/dbb79799-f83a-4f0d-551f-5be2854150d9/source"],[11,"und das Gespensterschloss","http://a1.mzstatic.com/us/r30/Music71/v4/cd/c3/65/cdc36537-ec11-9175-81ba-869e45908266/source"],[12,"und der seltsame Wecker","http://a1.mzstatic.com/us/r30/Music41/v4/79/3c/bb/793cbb57-e901-d11c-6d90-671e09e02f3b/source"],[13,"und der lachende Schatten","http://a1.mzstatic.com/us/r30/Music71/v4/35/d3/83/35d383d4-7cf8-4fc9-4a06-2197ae82f46b/source"],[14,"und das Bergmonster","http://a1.mzstatic.com/us/r30/Music41/v4/05/0b/e1/050be1b1-f45d-df0a-eadd-3209014ed635/source"],[15,"und der rasende Löwe","http://a1.mzstatic.com/us/r30/Music62/v4/9f/c3/e3/9fc3e3cc-6b71-2f31-ccda-8d0563427859/source"],[16,"und der Zauberspiegel","http://a1.mzstatic.com/us/r30/Music22/v4/1d/6e/77/1d6e77a2-74de-9e23-8636-646960f2524a/source"],[17,"und die gefährliche Erbschaft","http://a1.mzstatic.com/us/r30/Music71/v4/03/49/a0/0349a037-336c-9743-f222-38d01116c499/source"],[18,"und die Geisterinsel","http://a1.mzstatic.com/us/r30/Music71/v4/b9/8d/e4/b98de464-963d-f2e7-0133-c24097f642be/source"],[19,"und der Teufelsberg","http://a1.mzstatic.com/us/r30/Music71/v4/10/d4/05/10d40510-1c05-1a3b-2870-8b9a9101d2ec/source"],[20,"und die flammende Spur","http://a1.mzstatic.com/us/r30/Music71/v4/4a/c3/d8/4ac3d84a-71be-580a-9d62-5509789396f4/source"]];
+<script type="module">
+import { S_URL, S_KEY } from './config.js';
+
+const EP_DATA=[[1,"und der Super-Papagei","http://a1.mzstatic.com/us/r30/Music41/v4/c9/3f/e4/c93fe4aa-c385-ed18-2cb3-e4eeff284f5a/source"],[2,"und der Phantomsee","http://a1.mzstatic.com/us/r30/Music62/v4/87/1c/7f/871c7f1c-fdf1-bed9-bf1b-eb7ab73ec448/source"],[3,"und der Karpatenhund","http://a1.mzstatic.com/us/r30/Music71/v4/a7/d8/54/a7d85469-a416-93a3-93ba-d8e82be2f8ae/source"],[4,"und die schwarze Katze","http://a1.mzstatic.com/us/r30/Music71/v4/21/ee/57/21ee57b0-0949-8674-8b3d-c2c512c5fbc8/source"],[5,"und der Fluch des Rubins","http://a1.mzstatic.com/us/r30/Music62/v4/f5/4e/46/f54e4607-2ea1-d765-632e-8a1723d4ba61/source"],[6,"und der sprechende Totenkopf","http://a1.mzstatic.com/us/r30/Music71/v4/a7/e7/cb/a7e7cbc3-0ce0-34db-a310-d7b82546f2b0/source"],[7,"und der unheimliche Drache","http://a1.mzstatic.com/us/r30/Music62/v4/c0/7a/ba/c07aba56-7363-71d6-72ba-38d2a968e379/source"],[8,"und der grüne Geist","http://a1.mzstatic.com/us/r30/Music22/v4/63/98/91/639891fc-8d20-3c32-78a9-5f12e7919932/source"],[9,"und die rätselhaften Bilder","http://a1.mzstatic.com/us/r30/Music41/v4/63/ed/85/63ed8571-c32d-cc88-3bf2-6b1921c9023b/source"],[10,"und die flüsternde Mumie","http://a1.mzstatic.com/us/r30/Music62/v4/db/b7/97/dbb79799-f83a-4f0d-551f-5be2854150d9/source"],[11,"und das Gespensterschloss","http://a1.mzstatic.com/us/r30/Music71/v4/cd/c3/65/cdc36537-ec11-9175-81ba-869e45908266/source"],[12,"und der seltsame Wecker","http://a1.mzstatic.com/us/r30/Music41/v4/79/3c/bb/793cbb57-e901-d11c-6d90-671e09e02f3b/source"],[13,"und der lachende Schatten","http://a1.mzstatic.com/us/r30/Music71/v4/35/d3/83/35d383d4-7cf8-4fc9-4a06-2197ae82f46b/source"],[14,"und das Bergmonster","http://a1.mzstatic.com/us/r30/Music41/v4/05/0b/e1/050be1b1-f45d-df0a-eadd-3209014ed635/source"],[15,"und der rasende Löwe","http://a1.mzstatic.com/us/r30/Music62/v4/9f/c3/e3/9fc3e3cc-6b71-2f31-ccda-8d0563427859/source"],[16,"und der Zauberspiegel","http://a1.mzstatic.com/us/r30/Music22/v4/1d/6e/77/1d6e77a2-74de-4933-9f89-9e843c081822/source"]];
 
 // ── BUILD EPISODE OBJECTS ───────────────────────────────────────────────
 function formatDate(d) {
@@ -312,8 +318,6 @@ async function initEpisodes() {
 let episodes = [];
 
 // ── SUPABASE ────────────────────────────────────────────────────────────
-const S_URL = "https://ohxnksqafpuaabwppmmh.supabase.co";
-const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oeG5rc3FhZnB1YWFid3BwbW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTQyMTQsImV4cCI6MjA5MDg3MDIxNH0.TlLxQBqypqTZTqS8SEbB5ogbMNE-kYg0Xr3MHTUWvYI";
 let sb = null;
 if (S_URL && S_URL.includes("supabase.co")) {
   sb = supabase.createClient(S_URL, S_KEY);
@@ -377,12 +381,10 @@ async function syncFromCloud() {
     try {
         const { data, error } = await sb.from("user_data").select("*").eq("id", user.id).single();
         if (data) {
-            // Überschreiben statt nur Hinzufügen, damit Löschungen übernommen werden
             checked = new Set(data.checked || []);
             bookmarks = new Set(data.bookmarks || []);
             ratings = data.ratings || {};
 
-            // Sofort lokal speichern
             localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
             localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
             localStorage.setItem("ddf4_r", JSON.stringify(ratings));
@@ -432,7 +434,6 @@ async function doAuth(type) {
             const res = await sb.auth.signUp({ email, password: pass });
             if (res.error) throw res.error;
             
-            // Bei Registrierung: Aktuellen Stand in die Cloud schieben
             if (res.data.user) {
               await sb.from("user_data").upsert({
                   id: res.data.user.id,
@@ -441,7 +442,6 @@ async function doAuth(type) {
                   ratings: ratings,
                   updated_at: new Date()
               });
-              // LocalStorage leeren, damit Gast-Stand weg ist
               localStorage.removeItem("ddf4_c");
               localStorage.removeItem("ddf4_b");
               localStorage.removeItem("ddf4_r");
@@ -452,7 +452,6 @@ async function doAuth(type) {
             if (res.error) throw res.error;
             user = res.data.user;
 
-            // Beim Login: NUR Cloud-Daten laden, Lokales ignorieren
             const { data } = await sb.from("user_data").select("*").eq("id", user.id).single();
             if (data) {
                 checked = new Set(data.checked || []);
@@ -464,7 +463,6 @@ async function doAuth(type) {
                 ratings = {};
             }
             
-            // LocalStorage mit Cloud-Stand synchronisieren
             localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
             localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
             localStorage.setItem("ddf4_r", JSON.stringify(ratings));
@@ -483,7 +481,6 @@ async function doLogout() {
     if (sb) await sb.auth.signOut();
     user = null;
     
-    // Alles zurücksetzen (Gast startet bei Null)
     checked = new Set();
     bookmarks = new Set();
     ratings = {};
@@ -565,10 +562,8 @@ function openSpotify() {
   const ep = episodes.find(e => e.num === cur);
   if (!ep || !ep.spotifyId) return;
   
-  // Try to open in app using URI scheme
   window.location.href = `spotify:album:${ep.spotifyId}`;
   
-  // Fallback to web after a short delay if app doesn't open
   setTimeout(() => {
     window.open(ep.spotify || `https://open.spotify.com/album/${ep.spotifyId}`, "_blank");
   }, 600);
@@ -753,7 +748,6 @@ function setF(f,btn){
   document.querySelectorAll(".fb").forEach(b=>b.classList.remove("on"));
   btn.classList.add("on");
 
-  // Reset star button text if not a star filter
   const sBtn = document.getElementById("fStarBtn");
   if(!f.startsWith("r")) sBtn.textContent = "★";
   else sBtn.textContent = f[1] + " ★";
@@ -781,7 +775,6 @@ function toggleFPop(e) {
   document.getElementById("fRatePop").classList.toggle("on");
 }
 
-// Close popups on click outside
 window.addEventListener("click", () => {
   document.getElementById("ratePop")?.classList.remove("on");
   document.getElementById("fRatePop")?.classList.remove("on");
@@ -844,14 +837,39 @@ function resetAll(){
 let tt;
 function toast(msg){
   const el=document.getElementById("toast");
+  if(!el) return;
   el.textContent=msg;el.classList.add("show");
   clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),3000);
 }
 
+// ── GLOBAL EXPOSE ───────────────────────────────────────────────────────
+window.openAuth = openAuth;
+window.openDesc = openDesc;
+window.closeDesc = closeDesc;
+window.doAuth = doAuth;
+window.doLogout = doLogout;
+window.openSpotify = openSpotify;
+window.toTop = toTop;
+window.nav = nav;
+window.toggleCur = toggleCur;
+window.toggleEp = toggleEp;
+window.toggleBook = toggleBook;
+window.toggleRatePop = toggleRatePop;
+window.setRate = setRate;
+window.setF = setF;
+window.toggleFPop = toggleFPop;
+window.renderList = renderList;
+window.exportCSV = exportCSV;
+window.openM = openM;
+window.closeM = closeM;
+window.handleOv = handleOv;
+window.doImport = doImport;
+window.resetAll = resetAll;
+
 // ── INIT ────────────────────────────────────────────────────────────────
 (async () => {
   episodes = await initEpisodes();
-  loadState();
+  await loadState();
   updateStats();
   updatePlayer();
   setupObs();

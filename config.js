@@ -1,0 +1,3 @@
+// Supabase Konfiguration
+export const S_URL = "https://ohxnksqafpuaabwppmmh.supabase.co";
+export const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oeG5rc3FhZnB1YWFid3BwbW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTQyMTQsImV4cCI6MjA5MDg3MDIxNH0.TlLxQBqypqTZTqS8SEbB5ogbMNE-kYg0Xr3MHTUWvYI";
