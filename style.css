@@ -43,7 +43,12 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .ctrl:hover{border-color:var(--ac);color:var(--ac);transform:scale(1.07)}
 .ctrl-s{width:34px;height:34px;border-radius:50%;border:1px solid var(--bd);background:transparent;color:var(--mu2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
 .ctrl-s:hover{color:var(--tx);border-color:var(--mu)}
-#pSpotify:hover{color:#1db954;border-color:#1db954}
+.ctrl-s.svc-spotify:hover{color:#1db954;border-color:#1db954}
+.ctrl-s.svc-appleMusic:hover{color:#fa243c;border-color:#fa243c}
+.ctrl-s.svc-amazonMusic:hover{color:#00a8e1;border-color:#00a8e1}
+.ctrl-s.svc-youtubeMusic:hover{color:#ff0000;border-color:#ff0000}
+.ctrl-s.svc-deezer:hover{color:#ff4040;border-color:#ff4040}
+.ctrl-s.svc-bookbeat:hover{color:#00d285;border-color:#00d285}
 .ctrl-s.on{color:var(--ac);border-color:var(--ac)}
 .check-btn{width:56px;height:56px;border-radius:50%;border:2px solid var(--bd);background:var(--sf2);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:all .3s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
 .check-btn::before{content:"";position:absolute;inset:0;background:var(--ck);opacity:0;transition:opacity .25s}

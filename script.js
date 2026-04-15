@@ -299,6 +299,9 @@ function updatePlayer() {
   const btn = document.getElementById("pSpotify");
   btn.style.display = link ? "flex" : "none";
   
+  // Update Class for Hover Color
+  btn.className = "ctrl-s svc-" + musicService;
+  
   // Update Icon
   const icons = {
     spotify: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.31c-.218.358-.684.47-1.042.252-2.822-1.723-6.375-2.113-10.558-1.157-.409.093-.82-.163-.914-.572-.093-.41.163-.82.572-.914 4.58-1.047 8.52-.596 11.69 1.341.358.218.47.684.252 1.052zm1.47-3.255c-.276.448-.86.59-1.308.314-3.23-1.986-8.153-2.56-11.97-1.403-.504.153-1.04-.128-1.194-.632-.154-.504.128-1.04.632-1.194 4.363-1.324 9.78-.67 13.518 1.628.448.276.59.86.322 1.287zm.127-3.41c-3.873-2.3-10.274-2.512-13.996-1.383-.593.18-1.23-.153-1.41-.746-.18-.593.153-1.23.746-1.41 4.282-1.298 11.353-1.042 15.82 1.61.533.317.708 1.004.392 1.536-.317.532-1.004.708-1.552.393z"/></svg>',
@@ -309,6 +312,7 @@ function updatePlayer() {
     bookbeat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5z"/></svg>'
   };
   btn.innerHTML = icons[musicService] || icons.spotify;
+
 
   document.getElementById("mCheck").classList.toggle("on",done);
   document.getElementById("pOk").classList.toggle("on",done);
