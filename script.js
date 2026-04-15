@@ -32,7 +32,14 @@ async function initEpisodes() {
         desc: ep.beschreibung || ep.gesamtbeschreibung || "",
         author: ep.autor || "Unbekannt",
         date: ep.veröffentlichungsdatum,
-        spotify: ep.links ? ep.links.spotify : "",
+        links: {
+          spotify: ep.links ? ep.links.spotify : "",
+          appleMusic: ep.links ? ep.links.appleMusic : "",
+          amazonMusic: ep.links ? ep.links.amazonMusic : "",
+          youtubeMusic: ep.links ? ep.links.youtubeMusic : "",
+          deezer: ep.links ? ep.links.deezer : "",
+          bookbeat: ep.links ? ep.links.bookbeat : ""
+        },
         spotifyId: ep.ids ? ep.ids.spotify : "",
         duration: ep.gesamtdauer || 0,
         isFuture: ep.veröffentlichungsdatum > today
@@ -46,7 +53,7 @@ async function initEpisodes() {
     desc: "",
     author: "",
     date: "",
-    spotify: "",
+    links: { spotify: "", appleMusic: "", amazonMusic: "", youtubeMusic: "", deezer: "", bookbeat: "" },
     spotifyId: "",
     duration: 0,
     isFuture: false
@@ -65,6 +72,7 @@ if (S_URL && S_URL.includes("supabase.co")) {
 let checked = new Set();
 let bookmarks = new Set();
 let ratings = {};
+let musicService = "spotify";
 let cur = 1;
 let filt = "all";
 let obs = null;
@@ -78,6 +86,8 @@ async function loadState() {
     if (b) bookmarks = new Set(JSON.parse(b));
     const r = localStorage.getItem("ddf4_r");
     if (r) ratings = JSON.parse(r);
+    const m = localStorage.getItem("ddf4_m");
+    if (m) musicService = m;
     const e = localStorage.getItem("ddf4_ep");
     if (e) cur = Math.max(1, Math.min(parseInt(e), episodes.length||999));
     
@@ -96,6 +106,7 @@ async function save() {
   localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
   localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
   localStorage.setItem("ddf4_r", JSON.stringify(ratings));
+  localStorage.setItem("ddf4_m", musicService);
   localStorage.setItem("ddf4_ep", cur);
   if (user && sb) await syncToCloud();
 }
@@ -109,6 +120,7 @@ async function syncToCloud() {
             checked: [...checked],
             bookmarks: [...bookmarks],
             ratings: ratings,
+            music_service: musicService,
             updated_at: new Date()
         });
     } catch(e) { console.error("Sync Error", e); }
@@ -122,10 +134,12 @@ async function syncFromCloud() {
             checked = new Set(data.checked || []);
             bookmarks = new Set(data.bookmarks || []);
             ratings = data.ratings || {};
+            if (data.music_service) musicService = data.music_service;
 
             localStorage.setItem("ddf4_c", JSON.stringify([...checked]));
             localStorage.setItem("ddf4_b", JSON.stringify([...bookmarks]));
             localStorage.setItem("ddf4_r", JSON.stringify(ratings));
+            localStorage.setItem("ddf4_m", musicService);
         }
     } catch(e) { console.error("Pull Error", e); }
 }
@@ -281,7 +295,20 @@ function updatePlayer() {
   document.getElementById("pNum").textContent="Folge "+String(ep.num).padStart(3,"0");
   document.getElementById("pTitle").textContent=ep.title;
   
-  document.getElementById("pSpotify").style.display = ep.spotifyId ? "flex" : "none";
+  const link = ep.links ? ep.links[musicService] : "";
+  const btn = document.getElementById("pSpotify");
+  btn.style.display = link ? "flex" : "none";
+  
+  // Update Icon
+  const icons = {
+    spotify: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.31c-.218.358-.684.47-1.042.252-2.822-1.723-6.375-2.113-10.558-1.157-.409.093-.82-.163-.914-.572-.093-.41.163-.82.572-.914 4.58-1.047 8.52-.596 11.69 1.341.358.218.47.684.252 1.052zm1.47-3.255c-.276.448-.86.59-1.308.314-3.23-1.986-8.153-2.56-11.97-1.403-.504.153-1.04-.128-1.194-.632-.154-.504.128-1.04.632-1.194 4.363-1.324 9.78-.67 13.518 1.628.448.276.59.86.322 1.287zm.127-3.41c-3.873-2.3-10.274-2.512-13.996-1.383-.593.18-1.23-.153-1.41-.746-.18-.593.153-1.23.746-1.41 4.282-1.298 11.353-1.042 15.82 1.61.533.317.708 1.004.392 1.536-.317.532-1.004.708-1.552.393z"/></svg>',
+    appleMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.666 4.606c1.114-1.312 2.614-2.073 4.194-2.073 2.506 0 4.555 1.956 4.555 4.508 0 .848-.225 1.656-.628 2.378-.853 1.528-2.614 3.791-5.753 6.918l-.135.132-.135-.132c-3.139-3.127-4.9-5.39-5.753-6.918-.403-.722-.628-1.53-.628-2.378 0-2.552 2.049-4.508 4.555-4.508 1.58 0 3.08.761 4.194 2.073zm.334 16.827c.432 0 .783-.351.783-.783V8.892c0-.432-.351-.783-.783-.783s-.783.351-.783.783v11.758c0 .432.351.783.783.783z"/></svg>',
+    amazonMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5c-.2.2-.5.2-.7 0-1.2-1.2-2.8-1.8-4.5-1.8s-3.3.6-4.5 1.8c-.2.2-.5.2-.7 0s-.2-.5 0-.7c1.4-1.4 3.2-2.1 5.2-2.1s3.8.7 5.2 2.1c.2.2.2.5 0 .7zM12 4.5c2.5 0 4.5 2 4.5 4.5S14.5 13.5 12 13.5 7.5 11.5 7.5 9 9.5 4.5 12 4.5z"/></svg>',
+    youtubeMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 18c-3.313 0-6-2.687-6-6s2.687-6 6-6 6 2.687 6 6-2.687 6-6 6zm0-10c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm-1.5 6.5v-5l4 2.5-4 2.5z"/></svg>',
+    deezer: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.4 15.6h3.6V18H2.4v-2.4zm4.8 0h3.6V18H7.2v-2.4zm4.8 0h3.6V18H12v-2.4zm4.8 0h3.6V18h-3.6v-2.4zm4.8 0H24V18h-2.4v-2.4zM2.4 10.8h3.6v2.4H2.4v-2.4zm4.8 0h3.6v2.4H7.2v-2.4zm4.8 0h3.6v2.4H12v-2.4zm4.8 0h3.6v2.4h-3.6v-2.4zm4.8 0H24v2.4h-2.4v-2.4zM2.4 6h3.6v2.4H2.4V6zm4.8 0h3.6v2.4H7.2V6zm4.8 0h3.6v2.4H12V6zm4.8 0h3.6v2.4h-3.6V6zm4.8 0H24v2.4h-2.4V6zM7.2 1.2h3.6v2.4H7.2V1.2zm4.8 0h3.6v2.4H12V1.2zm4.8 0h3.6v2.4h-3.6V1.2z"/></svg>',
+    bookbeat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5z"/></svg>'
+  };
+  btn.innerHTML = icons[musicService] || icons.spotify;
 
   document.getElementById("mCheck").classList.toggle("on",done);
   document.getElementById("pOk").classList.toggle("on",done);
@@ -298,13 +325,29 @@ function updatePlayer() {
 
 function openSpotify() {
   const ep = episodes.find(e => e.num === cur);
-  if (!ep || !ep.spotifyId) return;
-  
-  window.location.href = `spotify:album:${ep.spotifyId}`;
-  
-  setTimeout(() => {
-    window.open(ep.spotify || `https://open.spotify.com/album/${ep.spotifyId}`, "_blank");
-  }, 600);
+  if (!ep) return;
+  const link = ep.links ? ep.links[musicService] : "";
+  if (!link) return;
+
+  if (musicService === "spotify" && ep.spotifyId) {
+    window.location.href = `spotify:album:${ep.spotifyId}`;
+    setTimeout(() => { window.open(link, "_blank"); }, 600);
+  } else {
+    window.open(link, "_blank");
+  }
+}
+
+function openSvc() {
+  document.querySelectorAll(".svc-item").forEach(i => i.classList.toggle("on", i.id === `svc-${musicService}`));
+  document.getElementById("ovSvc").classList.add("open");
+}
+function closeSvc() { document.getElementById("ovSvc").classList.remove("open"); }
+function setSvc(s) {
+  musicService = s;
+  save();
+  document.getElementById("svcBtnIcon").innerHTML = document.querySelector(`#svc-${s} .svc-icon`).innerHTML;
+  updatePlayer();
+  closeSvc();
 }
 
 function toTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
@@ -545,6 +588,7 @@ function handleOv(e){
   if(e.target.id==="ov") closeM();
   if(e.target.id==="ovAuth") closeAuth();
   if(e.target.id==="ovDesc") closeDesc();
+  if(e.target.id==="ovSvc") closeSvc();
 }
 function doImport(){
   const nums=parseNums(document.getElementById("mTa").value);
@@ -587,6 +631,9 @@ window.closeDesc = closeDesc;
 window.doAuth = doAuth;
 window.doLogout = doLogout;
 window.openSpotify = openSpotify;
+window.openSvc = openSvc;
+window.closeSvc = closeSvc;
+window.setSvc = setSvc;
 window.toTop = toTop;
 window.nav = nav;
 window.toggleCur = toggleCur;
@@ -608,6 +655,11 @@ window.resetAll = resetAll;
 (async () => {
   episodes = await initEpisodes();
   await loadState();
+  
+  // Update Service Button Icon
+  const sEl = document.querySelector(`#svc-${musicService} .svc-icon`);
+  if (sEl) document.getElementById("svcBtnIcon").innerHTML = sEl.innerHTML;
+
   updateStats();
   updatePlayer();
   setupObs();

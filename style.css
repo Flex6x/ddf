@@ -93,11 +93,22 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .epr.done .epck{background:var(--ck);border-color:var(--ck);color:#fff}
 .ep-empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px}
 .fab{position:fixed;bottom:24px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--ac);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0a0810;box-shadow:0 4px 18px rgba(232,196,74,.38);transition:all .2s;z-index:90}
-.fab:hover{transform:scale(1.1);box-shadow:0 6px 26px rgba(232,196,74,.5)}
-.up-btn{position:fixed;bottom:24px;right:140px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90;opacity:0;pointer-events:none}
+.exp-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
+.svc-btn{position:fixed;bottom:24px;right:80px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90}
+.svc-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
+.svc-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.svc-item{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:12px;cursor:pointer;transition:all .2s}
+.svc-item:hover{border-color:var(--ac);background:rgba(232,196,74,.05)}
+.svc-item.on{border-color:var(--ac);background:rgba(232,196,74,.08)}
+.svc-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.svc-name{flex:1;font-size:14px;font-weight:500;color:var(--tx)}
+.svc-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);position:relative;transition:all .2s}
+.svc-item.on .svc-check{border-color:var(--ac);background:var(--ac)}
+.svc-item.on .svc-check::after{content:"";position:absolute;inset:4px;background:#000;border-radius:50%}
+.up-btn{position:fixed;bottom:24px;right:200px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90;opacity:0;pointer-events:none}
 .up-btn.on{opacity:1;pointer-events:all}
 .up-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
-.exp-btn{position:fixed;bottom:24px;right:80px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90}
+.exp-btn{position:fixed;bottom:24px;right:140px;width:50px;height:50px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:all .2s;z-index:90}
 .exp-btn:hover{color:var(--tx);border-color:var(--mu);transform:translateY(-3px)}
 .ov{position:fixed;inset:0;background:rgba(8,8,16,.88);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
 .ov.open{opacity:1;pointer-events:all}
