@@ -36,7 +36,7 @@ async function initEpisodes() {
           spotify: ep.links ? (ep.links.spotify || ep.links['spotify']) : "",
           appleMusic: ep.links ? (ep.links.appleMusic || ep.links['apple-music'] || ep.links['apple_music'] || ep.links['itunes']) : "",
           amazonMusic: ep.links ? (ep.links.amazonMusic || ep.links['amazon-music'] || ep.links['amazon_music'] || ep.links['prime-music'] || ep.links['amazon']) : "",
-          youtubeMusic: ep.links ? (ep.links.youtubeMusic || ep.links['youtube-music'] || ep.links['youtube_music'] || ep.links['youtube'] || ep.links['yt']) : "",
+          youtubeMusic: ep.links ? (ep.links.youTubeMusic || ep.links.youtubeMusic || ep.links['youtube-music'] || ep.links['youtube_music'] || ep.links['youtube'] || ep.links['yt']) : "",
           deezer: ep.links ? (ep.links.deezer || ep.links['deezer']) : "",
           bookbeat: ep.links ? (ep.links.bookbeat || ep.links['bookbeat']) : ""
         },

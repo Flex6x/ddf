@@ -1,9 +1,17 @@
-const CACHE_NAME = 'ddf-tracker-v1';
+const CACHE_NAME = 'ddf-tracker-v2';
 const ASSETS = [
+  './',
   'index.html',
   'style.css',
   'script.js',
   'config.js',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png',
+  'icons/apple_music.svg',
+  'icons/Amazon_Music.png',
+  'icons/deezer.png',
+  'icons/bookbeat.png',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
@@ -25,6 +33,7 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  return self.clients.claim();
 });
 
 // Fetch assets from cache or network
