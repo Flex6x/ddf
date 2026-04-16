@@ -33,12 +33,12 @@ async function initEpisodes() {
         author: ep.autor || "Unbekannt",
         date: ep.veröffentlichungsdatum,
         links: {
-          spotify: ep.links ? ep.links.spotify : "",
-          appleMusic: ep.links ? ep.links.appleMusic : "",
-          amazonMusic: ep.links ? ep.links.amazonMusic : "",
-          youtubeMusic: ep.links ? ep.links.youtubeMusic : "",
-          deezer: ep.links ? ep.links.deezer : "",
-          bookbeat: ep.links ? ep.links.bookbeat : ""
+          spotify: ep.links ? (ep.links.spotify || ep.links['spotify']) : "",
+          appleMusic: ep.links ? (ep.links.appleMusic || ep.links['apple-music'] || ep.links['apple_music'] || ep.links['itunes']) : "",
+          amazonMusic: ep.links ? (ep.links.amazonMusic || ep.links['amazon-music'] || ep.links['amazon_music'] || ep.links['prime-music'] || ep.links['amazon']) : "",
+          youtubeMusic: ep.links ? (ep.links.youtubeMusic || ep.links['youtube-music'] || ep.links['youtube_music'] || ep.links['youtube'] || ep.links['yt']) : "",
+          deezer: ep.links ? (ep.links.deezer || ep.links['deezer']) : "",
+          bookbeat: ep.links ? (ep.links.bookbeat || ep.links['bookbeat']) : ""
         },
         spotifyId: ep.ids ? ep.ids.spotify : "",
         duration: ep.gesamtdauer || 0,
@@ -305,13 +305,14 @@ function updatePlayer() {
   // Update Icon
   const icons = {
     spotify: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.31c-.218.358-.684.47-1.042.252-2.822-1.723-6.375-2.113-10.558-1.157-.409.093-.82-.163-.914-.572-.093-.41.163-.82.572-.914 4.58-1.047 8.52-.596 11.69 1.341.358.218.47.684.252 1.052zm1.47-3.255c-.276.448-.86.59-1.308.314-3.23-1.986-8.153-2.56-11.97-1.403-.504.153-1.04-.128-1.194-.632-.154-.504.128-1.04.632-1.194 4.363-1.324 9.78-.67 13.518 1.628.448.276.59.86.322 1.287zm.127-3.41c-3.873-2.3-10.274-2.512-13.996-1.383-.593.18-1.23-.153-1.41-.746-.18-.593.153-1.23.746-1.41 4.282-1.298 11.353-1.042 15.82 1.61.533.317.708 1.004.392 1.536-.317.532-1.004.708-1.552.393z"/></svg>',
-    appleMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.666 4.606c1.114-1.312 2.614-2.073 4.194-2.073 2.506 0 4.555 1.956 4.555 4.508 0 .848-.225 1.656-.628 2.378-.853 1.528-2.614 3.791-5.753 6.918l-.135.132-.135-.132c-3.139-3.127-4.9-5.39-5.753-6.918-.403-.722-.628-1.53-.628-2.378 0-2.552 2.049-4.508 4.555-4.508 1.58 0 3.08.761 4.194 2.073zm.334 16.827c.432 0 .783-.351.783-.783V8.892c0-.432-.351-.783-.783-.783s-.783.351-.783.783v11.758c0 .432.351.783.783.783z"/></svg>',
-    amazonMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5c-.2.2-.5.2-.7 0-1.2-1.2-2.8-1.8-4.5-1.8s-3.3.6-4.5 1.8c-.2.2-.5.2-.7 0s-.2-.5 0-.7c1.4-1.4 3.2-2.1 5.2-2.1s3.8.7 5.2 2.1c.2.2.2.5 0 .7zM12 4.5c2.5 0 4.5 2 4.5 4.5S14.5 13.5 12 13.5 7.5 11.5 7.5 9 9.5 4.5 12 4.5z"/></svg>',
+    appleMusic: '<img src="icons/apple_music.svg" width="18" height="18" alt="">',
+    amazonMusic: '<img src="icons/Amazon_Music.png" width="18" height="18" alt="">',
     youtubeMusic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 18c-3.313 0-6-2.687-6-6s2.687-6 6-6 6 2.687 6 6-2.687 6-6 6zm0-10c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm-1.5 6.5v-5l4 2.5-4 2.5z"/></svg>',
-    deezer: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.4 15.6h3.6V18H2.4v-2.4zm4.8 0h3.6V18H7.2v-2.4zm4.8 0h3.6V18H12v-2.4zm4.8 0h3.6V18h-3.6v-2.4zm4.8 0H24V18h-2.4v-2.4zM2.4 10.8h3.6v2.4H2.4v-2.4zm4.8 0h3.6v2.4H7.2v-2.4zm4.8 0h3.6v2.4H12v-2.4zm4.8 0h3.6v2.4h-3.6v-2.4zm4.8 0H24v2.4h-2.4v-2.4zM2.4 6h3.6v2.4H2.4V6zm4.8 0h3.6v2.4H7.2V6zm4.8 0h3.6v2.4H12V6zm4.8 0h3.6v2.4h-3.6V6zm4.8 0H24v2.4h-2.4V6zM7.2 1.2h3.6v2.4H7.2V1.2zm4.8 0h3.6v2.4H12V1.2zm4.8 0h3.6v2.4h-3.6V1.2z"/></svg>',
-    bookbeat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5zm0-3h-9v-1.5h9v1.5z"/></svg>'
+    deezer: '<img src="icons/deezer.png" width="18" height="18" alt="">',
+    bookbeat: '<img src="icons/bookbeat.png" width="18" height="18" alt="">'
   };
   btn.innerHTML = icons[musicService] || icons.spotify;
+
 
 
   document.getElementById("mCheck").classList.toggle("on",done);
